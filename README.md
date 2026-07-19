@@ -2,7 +2,7 @@
 ### Data Analysis Project (Excel → SQL → Power BI)
 
 ## 📌 Project Overview
-This repository features an end-to-end data analytics enterprise pipeline built to ingest, clean, model, and visualize a health system dataset encompassing **3,500 unique patient records** and **9,000 distinct inpatient encounters**[cite: 1]. The primary goal was to resolve messy front-end intake variations, build a structured relational database architecture, and engineer an executive-facing Power BI dashboard to optimize revenue cycle operations, evaluate medical staff capacity, and mitigate clinical quality penalties[cite: 1].
+This repository features an end-to-end data analytics enterprise pipeline built to ingest, clean, model, and visualize a health system dataset encompassing **3,500 unique patient records** and **9,000 distinct inpatient encounters**. The primary goal was to resolve messy front-end intake variations, build a structured relational database architecture, and engineer an executive-facing Power BI dashboard to optimize revenue cycle operations, evaluate medical staff capacity, and mitigate clinical quality penalties.
 
 ## 🛠️ Tech Stack & Tools
 * **Data Transformation Layer:** Microsoft Excel & Power Query
