@@ -1,0 +1,241 @@
+-- revenue
+SELECT 
+    SUM(total_charges) AS gross_revenue,
+    SUM(net_paid) AS net_revenue,
+    SUM(waived_amount) AS waived_revenue
+FROM
+    admissions;
+
+
+
+-- max and min amount
+SELECT 
+    MIN(total_charges) AS min_bill,
+    MAX(total_charges) AS max_bill,
+    MIN(net_paid) AS min_paid_amount,
+    MAX(net_paid) AS max_paid_amount,
+    MIN(waived_amount) AS min_waived_amount,
+    MAX(waived_amount) AS max_waived_amount
+FROM
+    admissions;
+
+ 
+
+ -- avg amounts
+SELECT 
+    ROUND(AVG(total_charges), 2) AS avg_bill,
+    ROUND(AVG(net_paid), 2) AS avg_paid_amount,
+    ROUND(AVG(waived_amount), 2) AS avg_waived_amount
+FROM
+    admissions;
+
+
+
+-- department wise revenue
+SELECT 
+    d.specialty AS department,
+    SUM(a.total_charges) AS gross_revenue,
+    SUM(a.net_paid) AS net_revenue,
+    SUM(a.waived_amount) AS waived_revenue
+FROM
+    doctors d
+        LEFT JOIN
+    admissions a ON d.doctor_id = a.doctor_id
+GROUP BY d.specialty
+ORDER BY gross_revenue DESC;
+
+
+
+-- department wise avg amounts
+SELECT 
+    d.specialty AS department,
+    ROUND(AVG(a.total_charges), 2) AS avg_bill,
+    ROUND(AVG(a.net_paid), 2) AS avg_paid_amount,
+    ROUND(AVG(a.waived_amount), 2) AS avg_waived_amount
+FROM
+    doctors d
+        LEFT JOIN
+    admissions a ON d.doctor_id = a.doctor_id
+GROUP BY d.specialty
+ORDER BY avg_bill DESC;
+
+
+
+-- no.of patients by visit_count and their avg satisfaction rating(out of 5)
+SELECT 
+    visit_count,
+    COUNT(patient_id) AS patient_count,
+    ROUND(AVG(patient_satisfaction), 2) AS satisfaction_rating
+FROM
+    (SELECT 
+        patient_id,
+            COUNT(encounter_id) AS visit_count,
+            AVG(patient_satisfaction) AS patient_satisfaction
+    FROM
+        admissions
+    GROUP BY patient_id) AS t1
+GROUP BY visit_count
+ORDER BY patient_count DESC;
+
+
+
+-- patients_count depatment wise and their avg_satisfaction rating(out of 5)
+SELECT 
+    d.specialty AS department,
+    COUNT(a.encounter_id) AS total_admissions,
+    ROUND(AVG(a.patient_satisfaction), 2) AS avg_staisfaction_rating
+FROM
+    doctors d
+        LEFT JOIN
+    admissions a ON d.doctor_id = a.doctor_id
+GROUP BY department
+ORDER BY total_admissions DESC;
+
+ 
+
+ -- department wise doctor count and patient doctor ratio
+SELECT 
+    d.specialty AS department,
+    COUNT(DISTINCT d.doctor_id) AS num_of_doctors,
+    ROUND(COUNT(a.encounter_id) / COUNT(DISTINCT d.doctor_id),
+            0) AS patients_per_doctor
+FROM
+    doctors d
+        LEFT JOIN
+    admissions a ON d.doctor_id = a.doctor_id
+GROUP BY department
+ORDER BY num_of_doctors DESC;
+ 
+
+
+ -- patient count by age group
+SELECT 
+    COUNT(CASE
+        WHEN p.age BETWEEN 18 AND 35 THEN a.encounter_id
+    END) AS young_18_to_35,
+    COUNT(CASE
+        WHEN p.age BETWEEN 36 AND 65 THEN a.encounter_id
+    END) AS middle_aged_36_65,
+    COUNT(CASE
+        WHEN p.age > 65 THEN a.encounter_id
+    END) AS senior_citizen_over_65
+FROM
+    patients p
+        RIGHT JOIN
+    admissions a ON p.patient_id = a.patient_id;
+ 
+
+
+ -- best performing doctors for every department
+ with performance_ranking as(
+ select d.doctor_id,d.doctor_name,d.specialty as department,count(a.encounter_id)as patient_count,round(avg(a.patient_satisfaction),2) as satisfaction_rating,
+ rank() over(partition by d.specialty order by(count(a.encounter_id)) desc,round(avg(a.patient_satisfaction),2)desc)as rnk
+ from doctors d left join admissions a on d.doctor_id = a.doctor_id group by d.doctor_id,d.doctor_name,d.specialty
+ )
+ select doctor_id,doctor_name,department,patient_count,satisfaction_rating from performance_ranking 
+ where rnk = 1 order by patient_count desc;
+ 
+ 
+ 
+
+-- readmission within 30 days
+SELECT 
+    ROUND(COUNT(CASE
+                WHEN readmission_30_days = 'yes' THEN 1
+            END) / COUNT(*) * 100,
+            2) AS avg_within_30_days_readmission_rate
+FROM
+    admissions;
+SELECT 
+    primary_diagnosis,
+    ROUND(COUNT(CASE
+                WHEN readmission_30_days = 'yes' THEN 1
+            END) / COUNT(*) * 100,
+            2) AS within_30_days_readmission_rate
+FROM
+    admissions
+GROUP BY primary_diagnosis
+ORDER BY within_30_days_readmission_rate DESC;
+
+
+
+-- doctor wise readmission within 30 days
+with dw_re30 as(
+select d.doctor_id,d.doctor_name,round(count(case when a.readmission_30_days='yes' then 1 end)/count(*)*100,2) as within_30_days_readmission_rate
+from doctors d inner join admissions a on d.doctor_id = a.doctor_id group by d.doctor_id,d.doctor_name order by within_30_days_readmission_rate desc
+)
+(select 'highest_readmission_rate_doctors' as doctor_id,'' as doctor_name,'' as within_30_days_readmission_rate )
+union all
+(select * from dw_re30 order by within_30_days_readmission_rate desc limit 3)
+union all
+(select 'lowest_readmission_rate_doctors','' ,'')
+union all
+(select * from dw_re30 order by within_30_days_readmission_rate asc limit 3);
+
+
+
+-- avg_stay days
+SELECT 
+    primary_diagnosis, AVG(stay_days) AS avg_stay_days
+FROM
+    admissions
+GROUP BY primary_diagnosis;
+
+
+
+-- insurance provider wise 
+SELECT 
+    p.insurance_provider,
+    COUNT(DISTINCT p.patient_id) AS patient_count,
+    SUM(a.total_charges) AS gross_revenue,
+    SUM(a.net_paid) AS net_revenue,
+    SUM(waived_amount) AS waived_revenue
+FROM
+    patients p
+        LEFT JOIN
+    admissions a ON p.patient_id = a.patient_id
+GROUP BY insurance_provider
+ORDER BY gross_revenue DESC;
+
+
+
+-- patient count who never get admited but are in records.alter
+SELECT 
+    COUNT(p.patient_id) AS non_admission_patients
+FROM
+    patients p
+        LEFT JOIN
+    admissions a ON p.patient_id = a.patient_id
+WHERE
+    a.patient_id IS NULL;
+
+
+
+-- total_patient in hospital record
+SELECT 
+    COUNT(patient_id) AS total_patients
+FROM
+    patients;
+
+
+
+-- total_patients ever admited in the year irrespective of readmission
+SELECT 
+    COUNT(DISTINCT patient_id) AS net_admited_patients_count
+FROM
+    admissions;
+
+
+
+ -- stay_days vs readmission vs satisfaction rating
+SELECT DISTINCT
+    stay_days,
+    ROUND(COUNT(CASE
+                WHEN readmission_30_days = 'yes' THEN 1
+            END) / COUNT(*) * 100,
+            2) AS within_30_days_readmission_rate,
+    AVG(patient_satisfaction) AS satisfaction_rating
+FROM
+    admissions
+GROUP BY stay_days
+ORDER BY stay_days;

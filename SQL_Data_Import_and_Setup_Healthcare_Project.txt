@@ -1,0 +1,65 @@
+create database healthcare_project;
+use healthcare_project;
+
+CREATE TABLE hospital (
+    Doctor_ID INT PRIMARY KEY,
+    Doctor_Name VARCHAR(100),
+    Specialty VARCHAR(50)
+);
+rename table hospital to doctors;
+alter table doctors modify specialty varchar(100);
+
+CREATE TABLE patients (
+    Patient_ID INT PRIMARY KEY,
+    Patient_Name VARCHAR(100),
+    Gender VARCHAR(20),
+    Age INT,
+    Insurance_Provider VARCHAR(200)
+);
+
+create table admissions
+(Encounter_ID int primary key, Patient_ID int,
+Doctor_ID int, Admission_Date date,
+	Discharge_Date date,
+	Admission_Type varchar(50),
+	Primary_Diagnosis varchar(200),
+    Total_Charges decimal(10,2)	,Insurance_Paid  decimal(10,2),
+	Patient_Paid  decimal(10,2),
+    Waived_Amount  decimal(10,2) ,
+    Patient_Satisfaction int check(patient_satisfaction between 1 and 5),	
+    Readmission_30_Days varchar(10),Year_Quarter int constraint check(year_quarter  between 1 and 4),Stay_Days int, foreign key(doctor_id) references doctors(doctor_id), foreign key(patient_id)
+    references patients(patient_id));
+    
+
+ insert into patients values 
+   (1, 'Robert Miller', 'Male', 35, 'Medicare'),
+ (2, 'Michael Smith', 'Male', 40, 'Self-Pay'),
+ (3, 'James Martin', 'Female', 25, 'Medicare'),
+ (4, 'Michael Smith', 'Female', 57, 'Blue Cross'),
+ (5, 'Emily Hernandez', 'Male', 55, ''),
+-- NOTE-remaining 3495 entries values in this table is omitted because of scannability.
+
+
+
+INSERT INTO doctors (Doctor_ID, Doctor_Name, specialty) VALUES (1, 'Dr. David Martin', 'Neurology');
+INSERT INTO doctors (Doctor_ID, Doctor_Name, specialty) VALUES (2, 'Dr. Charles Hernandez', 'Neurology');
+INSERT INTO doctors (Doctor_ID, Doctor_Name, specialty) VALUES (3, 'Dr. David Jackson', 'General Surgery');
+INSERT INTO doctors (Doctor_ID, Doctor_Name, specialty) VALUES (4, 'Dr. Robert Brown', 'General Surgery');
+INSERT INTO doctors (Doctor_ID, Doctor_Name, specialty) VALUES (5, 'Dr. Jane Lopez', 'Orthopedics');
+-- NOTE-remaining 45 entries values in this table is omitted because of scannability.
+
+
+
+INSERT INTO admissions(Encounter_ID, Patient_ID, Doctor_ID, Admission_Date, Discharge_Date, Admission_Type,
+ Primary_Diagnosis, Total_Charges, Insurance_Paid, Patient_Paid, Waived_Amount, Patient_Satisfaction,
+ Readmission_30_Days, Year_Quarter, Stay_days)
+ values (1, 3490, 4, '2025-11-02', '2025-11-05', 'Emergency', 'Cholecystitis', 14302.55, 11154.18, 2276.03, 872.34, 4, 'No', 4, 3),
+ (2, 2470, 50, '2025-10-28', '2025-11-01', 'Emergency', 'Sepsis', 13085.67, 8740.72, 2151.85, 2193.1, null, 'No', 4, 4),
+ (3, 2989, 4, '2025-03-29', '2025-04-03', 'Elective', 'Cholecystitis', 17072.3, 10662.26, 2705.45, 3704.59, 5, 'No', 1, 5),
+ (4, 35, 23, '2025-11-02', '2025-11-04', 'Urgent', 'Osteoarthritis', 14293.12, 9404.64, 1904, 2984.48, 5, 'No', 4, 2),
+ (5, 246, 7, '2025-10-12', '2025-10-18', 'Emergency', 'Copd Exacerbation', 21201.35, 16450.01, 3731.99, 1019.35, 4, 'Yes', 4, 6),
+-- NOTE-remaining 8995 entries values in this table is omitted because of scannability.
+
+
+
+
