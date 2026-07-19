@@ -1,4 +1,4 @@
-# Healthcare Operational Analytics Project
+# Healthcare Operations Analytics Project
 ### Data Analysis Project (Excel → SQL → Power BI)
 
 ## 📌 Project Overview
