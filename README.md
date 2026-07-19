@@ -1,4 +1,4 @@
-# Healthcare Operational Data Analytics Pipeline
+# Healthcare Operational Analytics Project
 ### Data Analysis Project (Excel → SQL → Power BI)
 
 ## 📌 Project Overview
