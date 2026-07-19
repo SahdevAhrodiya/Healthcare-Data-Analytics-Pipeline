@@ -46,7 +46,7 @@ This repository features an end-to-end data analytics enterprise pipeline built 
 * 🔍 *Analytical Code:* Inspect the [SQL Queries File](SQL_Analysis_queries_Healthcare_project.txt) containing complex aggregation, filtering, and analysis logic.
 * 📊 *Interactive Dashboard:* Download and interact with the native [Power BI Dashboard Application File](Healtcare_Project_Dashboard.pbix).
 * 📄 *Pipeline Documentation:* Read the comprehensive [Executive Report and Process Presentation PDF](Report_and_Pipeline_Healthcare_Project.pdf) outlining the complete lifecycle.
-*
+  
 ---
 
 **Author:** Sahdev  
